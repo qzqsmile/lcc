@@ -84,6 +84,7 @@ void *allocate(unsigned long n, unsigned a) {
 void *newarray(unsigned long m, unsigned long n, unsigned a) {
 	return allocate(m*n, a);
 }
+//don't really free meomery, just collect into cache memory
 void deallocate(unsigned a) {
 	assert(a < NELEMS(arena));
 	arena[a]->next = freeblocks;

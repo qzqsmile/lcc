@@ -92,9 +92,11 @@ char *stringn(const char *str, int len) {
 	struct string *p;
 
 	assert(str);
+	//calulate hash value
 	for (h = 0, i = len, end = str; i > 0; i--)
 		h = (h<<1) + scatter[*(unsigned char *)end++];
 	h &= NELEMS(buckets)-1;
+	//return when they equal
 	for (p = buckets[h]; p; p = p->link)
 		if (len == p->len) {
 			const char *s1 = str;
@@ -104,6 +106,7 @@ char *stringn(const char *str, int len) {
 					return p->str;
 			} while (*s1++ == *s2++);
 		}
+	// insert if not existed
 	{
 		static char *next, *strlimit;
 		if (len + 1 >= strlimit - next) {
