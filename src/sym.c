@@ -95,7 +95,9 @@ Symbol install(const char *name, Table *tpp, int level, int arena) {
 	p->sym.name = (char *)name;
 	p->sym.scope = level;
 	p->sym.up = tp->all;
+	//insert node into started node of buckets
 	tp->all = &p->sym;
+	//enctry link point itself
 	p->link = tp->buckets[h];
 	tp->buckets[h] = p;
 	return &p->sym;
@@ -156,12 +158,15 @@ Symbol findlabel(int lab) {
 		if (lab == p->sym.u.l.label)
 			return &p->sym;
 	NEW0(p, FUNC);
+	//above space line same as findlabels 
 	p->sym.name = stringd(lab);
 	p->sym.scope = LABELS;
 	p->sym.up = labels->all;
 	labels->all = &p->sym;
 	p->link = labels->buckets[h];
 	labels->buckets[h] = p;
+	
+	//label maybe used later
 	p->sym.generated = 1;
 	p->sym.u.l.label = lab;
 	(*IR->defsymbol)(&p->sym);
