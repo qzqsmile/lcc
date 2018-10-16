@@ -254,8 +254,11 @@ struct symbol {
 	char *name;
 	int scope;
 	Coordinate src;
+	//?
 	Symbol up;
+	// keep track of every use of every symbol, see exercise3.4
 	List uses;
+	// auto, register, static, extern, 
 	int sclass;
 	unsigned structarg:1;
 
@@ -264,8 +267,11 @@ struct symbol {
 	unsigned temporary:1;
 	unsigned generated:1;
 	unsigned defined:1;
+	// variables, functions, constants, structuture, union, enumeration
 	Type type;
+	//reference count, why float?
 	float ref;
+	//extra instructions
 	union {
 		struct {
 			int label;
