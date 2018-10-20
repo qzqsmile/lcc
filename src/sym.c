@@ -45,8 +45,10 @@ Table table(Table tp, int level) {
 		new->all = tp->all;
 	return new;
 }
+// apply is function ?
 void foreach(Table tp, int lev, void (*apply)(Symbol, void *), void *cl) {
 	assert(tp);
+	//locate the proper scope
 	while (tp && tp->level > lev)
 		tp = tp->previous;
 	if (tp && tp->level == lev) {

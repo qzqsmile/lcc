@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <string.h>
 
+// sizeof eperession equal to sizeof(expression)
 #define NEW(p,a) ((p) = allocate(sizeof *(p), (a)))
 #define NEW0(p,a) memset(NEW((p),(a)), 0, sizeof *(p))
 #define isaddrop(op) (specific(op)==ADDRG+P || specific(op)==ADDRL+P \
@@ -261,8 +262,11 @@ struct symbol {
 	char *name;
 	int scope;
 	Coordinate src;
+	//?
 	Symbol up;
+	// keep track of every use of every symbol, see exercise3.4
 	List uses;
+	// auto, register, static, extern, 
 	int sclass;
 	unsigned structarg:1;
 
@@ -271,8 +275,11 @@ struct symbol {
 	unsigned temporary:1;
 	unsigned generated:1;
 	unsigned defined:1;
+	// variables, functions, constants, structuture, union, enumeration
 	Type type;
+	//reference count, why float?
 	float ref;
+	//extra instructions
 	union {
 		struct {
 			int label;
