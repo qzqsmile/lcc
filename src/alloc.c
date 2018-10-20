@@ -50,6 +50,10 @@ static struct block
 	*arena[] = { &first[0], &first[1], &first[2] };
 static struct block *freeblocks;
 
+/*
+	parameter n: memoery you wanted
+	a: index of arena
+ */
 void *allocate(unsigned long n, unsigned a) {
 	struct block *ap;
 
@@ -63,6 +67,8 @@ void *allocate(unsigned long n, unsigned a) {
 			ap = ap->next;
 		} else
 			{
+				//allocate must return pointer suitably aligned to differet type on various host
+				//that's what union align do
 				unsigned m = sizeof (union header) + n + roundup(10*1024, sizeof (union align));
 				ap->next = malloc(m);
 				ap = ap->next;
@@ -72,6 +78,7 @@ void *allocate(unsigned long n, unsigned a) {
 				}
 				ap->limit = (char *)ap + m;
 			}
+		// initialize memeory in ap
 		ap->avail = (char *)((union header *)ap + 1);
 		ap->next = NULL;
 		arena[a] = ap;
@@ -84,7 +91,8 @@ void *allocate(unsigned long n, unsigned a) {
 void *newarray(unsigned long m, unsigned long n, unsigned a) {
 	return allocate(m*n, a);
 }
-//don't really free meomery, just collect into cache memory
+//don't really free meomery, just reinsert into cache memory
+//free the total aerna
 void deallocate(unsigned a) {
 	assert(a < NELEMS(arena));
 	arena[a]->next = freeblocks;
