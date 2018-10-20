@@ -30,6 +30,13 @@
 #endif
 #define NELEMS(a) ((int)(sizeof (a)/sizeof ((a)[0])))
 #undef roundup
+/* (x+((n)-1) move number to next aerna of n,
+	~((n)-1) clear low bit of number
+	ex: x = 10, n = 4 expected result is 12;
+	(x)+((n)-1) => 14>12 move to next aearna
+	~((n)-1) => -4 => 11..........1100 only the low bit is zero
+	when 14 & -4 make sure the result can be divided by n
+*/
 #define roundup(x,n) (((x)+((n)-1))&(~((n)-1)))
 #define mkop(op,ty) (specific((op) + ttob(ty)))
 
