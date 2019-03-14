@@ -53,6 +53,7 @@ Tree expr(int tok) {
 Tree expr0(int tok) {
 	return root(expr(tok));
 }
+//assign tree
 Tree expr1(int tok) {
 	static char stop[] = { IF, ID, 0 };
 	Tree p = expr2();
@@ -61,12 +62,13 @@ Tree expr1(int tok) {
 	|| (prec[t] >=  6 && prec[t] <=  8)
 	|| (prec[t] >= 11 && prec[t] <= 13)) {
 		int op = t;
-		t = gettok();
+		t =  gettok();
 		if (oper[op] == ASGN)
 			p = asgntree(ASGN, p, value(expr1(0)));
 		else
 			{
 				expect('=');
+				//build a a tree p is left and expr1(0) is right
 				p = incr(op, p, expr1(0));
 			}
 	}
@@ -138,6 +140,7 @@ static Tree unary(void) {
 
 	switch (t) {
 	case '*':    t = gettok(); p = unary(); p = pointer(p);
+						  //what's p->type->type
 						  if (isptr(p->type)
 						  && (isfunc(p->type->type) || isarray(p->type->type)))
 						  	p = retype(p, p->type->type);
