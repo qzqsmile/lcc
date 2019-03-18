@@ -124,6 +124,7 @@ static Tree root1(Tree p) {
 	return p;
 }
 
+//section 12.9, so far will return a tree
 Tree root(Tree p) {
 	warn = 0;
 	return root1(p);

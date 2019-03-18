@@ -8,6 +8,7 @@ static void stabline(Coordinate *);
 static void stabend(Coordinate *, Symbol, Coordinate **, Symbol *, Symbol *);
 Interface *IR = NULL;
 
+//what's -A?
 int Aflag;		/* >= 0 if -A specified */
 int Pflag;		/* != 0 if -P specified */
 int glevel;		/* == [0-9] if -g[0-9] specified */

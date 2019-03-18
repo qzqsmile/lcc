@@ -47,6 +47,7 @@ void error(const char *fmt, ...) {
 	va_end(ap);
 }
 
+//skip until tok in set
 void skipto(int tok, char set[]) {
 	int n;
 	char *s;

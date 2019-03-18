@@ -36,6 +36,8 @@ static Type super(Type ty) {
 	}
 	return ty;
 }
+//assign expression, tok is expected token
+
 Tree expr(int tok) {
 	static char stop[] = { IF, ID, '}', 0 };
 	Tree p = expr1(0);
@@ -46,6 +48,7 @@ Tree expr(int tok) {
 		q = pointer(expr1(0));
 		p = tree(RIGHT, q->type, root(value(p)), q);
 	}
+	// instead of test set, test only one token is more precise
 	if (tok)	
 		test(tok, stop);
 	return p;
@@ -67,6 +70,7 @@ Tree expr1(int tok) {
 			p = asgntree(ASGN, p, value(expr1(0)));
 		else
 			{
+				// += /= ...opertors will hit this branch
 				expect('=');
 				//build a a tree p is left and expr1(0) is right
 				p = incr(op, p, expr1(0));
@@ -77,6 +81,7 @@ Tree expr1(int tok) {
 	return p;
 }
 Tree incr(int op, Tree v, Tree e) {
+	// will call addtree function in encode.c
 	return asgntree(ASGN, v, (*optree[op])(oper[op], v, e));
 }
 static Tree expr2(void) {
@@ -85,15 +90,18 @@ static Tree expr2(void) {
 	if (t == '?') {
 		Tree l, r;
 		Coordinate pts[2];
+		// test ? a : b if test if a function, is
 		if (Aflag > 1 && isfunc(p->type))
 			warning("%s used in a conditional expression\n",
 				funcname(p));
 		p = pointer(p);
 		t = gettok();
 		pts[0] = src;
+		// end in symbol :
 		l = pointer(expr(':'));
 		pts[1] = src;
 		r = pointer(expr2());
+		//??????
 		if (generic(p->op) != CNST && events.points)
 			{
 				apply(events.points, &pts[0], &l);
@@ -103,6 +111,7 @@ static Tree expr2(void) {
 	}
 	return p;
 }
+// used in assign cond
 Tree value(Tree p) {
 	int op = generic(rightkid(p)->op);
 
@@ -113,10 +122,12 @@ Tree value(Tree p) {
 			consttree(0, inttype));
 	return p;
 }
+//?
 static Tree expr3(int k) {
 	int k1;
 	Tree p = unary();
 
+	//cp current input char
 	for (k1 = prec[t]; k1 >= k; k1--)
 		while (prec[t] == k1 && *cp != '=') {
 			Tree r;
@@ -125,12 +136,15 @@ static Tree expr3(int k) {
 			t = gettok();
 			pt = src;
 			p = pointer(p);
+			//why && and || hit this branch?
+			// resson in books: && and || operators alter flow of control and thus must provide for event hooks.
 			if (op == ANDAND || op == OROR) {
 				r = pointer(expr3(k1));
 				if (events.points)
 					apply(events.points, &pt, &r);
 			} else
 				r = pointer(expr3(k1 + 1));
+			//bittree in encode.c
 			p = (*optree[op])(oper[op], p, r); 
 		}
 	return p;
@@ -141,17 +155,20 @@ static Tree unary(void) {
 	switch (t) {
 	case '*':    t = gettok(); p = unary(); p = pointer(p);
 						  //what's p->type->type
+						  //when t is a pointer of pointer
 						  if (isptr(p->type)
 						  && (isfunc(p->type->type) || isarray(p->type->type)))
 						  	p = retype(p, p->type->type);
 						  else {
 						  	if (YYnull)
 						  		p = nullcheck(p);
+							//deref this pointer
 						  	p = rvalue(p);
 						  } break;
 	case '&':    t = gettok(); p = unary(); if (isarray(p->type) || isfunc(p->type))
 						  	p = retype(p, ptr(p->type));
 						  else
+						// get the pointer of the value p
 						  	p = lvalue(p);
 						  if (isaddrop(p->op) && p->u.sym->sclass == REGISTER)
 						  	error("invalid operand of unary &; `%s' is declared register\n", p->u.sym->name);
@@ -177,7 +194,7 @@ static Tree unary(void) {
 						  	typeerror(SUB, p, NULL); break;
 	case '~':    t = gettok(); p = unary(); p = pointer(p);
 						  if (isint(p->type)) {
-						  	Type ty = promote(p->type);
+						  	Type ty =  promote(p->type);
 						  	p = simplify(BCOM, ty, cast(p, ty), NULL);
 						  } else
 						  	typeerror(BCOM, p, NULL);  break;
@@ -186,6 +203,7 @@ static Tree unary(void) {
 						  	p = simplify(NOT, inttype, cond(p), NULL);
 						  else
 						  	typeerror(NOT, p, NULL); break;
+	// compile for ++i, but i++ call postfix??
 	case INCR:   t = gettok(); p = unary(); p = incr(INCR, pointer(p), consttree(1, inttype)); break;
 	case DECR:   t = gettok(); p = unary(); p = incr(DECR, pointer(p), consttree(1, inttype)); break;
 	case TYPECODE: case SIZEOF: { int op = t;
@@ -194,6 +212,7 @@ static Tree unary(void) {
 				      t = gettok();
 				      if (t == '(') {
 				      	t = gettok();
+						//like sizeof(int)
 				      	if (istypename(t, tsym)) {
 				      		ty = typename();
 				      		expect(')');
@@ -339,15 +358,19 @@ static Tree postfix(Tree p) {
 			return p;
 		}
 }
+//constant variable
 static Tree primary(void) {
 	Tree p;
 
 	assert(t != '(');
 	switch (t) {
 	case ICON:
+	//mkop?
 	case FCON: p = tree(mkop(CNST,tsym->type), tsym->type, NULL, NULL);
+		   // value
 		   p->u.v = tsym->u.c.v;
  break;
+ //tsym current symbol
 	case SCON: if (ischar(tsym->type->type))
 		   	tsym->u.c.v.p = stringn(tsym->u.c.v.p, tsym->type->size);
 		   else
@@ -513,6 +536,7 @@ Type binary(Type xty, Type yty) {
 	return inttype;
 #undef xx
 }
+//array pointer or function pointer
 Tree pointer(Tree p) {
 	if (isarray(p->type))
 		/* assert(p->op != RIGHT || p->u.sym == NULL), */
