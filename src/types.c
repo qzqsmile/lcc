@@ -70,6 +70,7 @@ static Type type(int op, Type ty, int size, int align, void *sym) {
 &(NELEMS(typetable)-1);
 	struct entry *tn;
 
+	//this type if existed??
 	if (op != FUNCTION && (op != ARRAY || size > 0))
 		for (tn = typetable[h]; tn; tn = tn->link)
 			if (tn->type.op    == op   && tn->type.type  == ty

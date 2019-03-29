@@ -37,6 +37,7 @@ Table newtable(int arena) {
 	return new;
 }
 
+//inherit from tp
 Table table(Table tp, int level) {
 	Table new = newtable(FUNC);
 	new->previous = tp;
@@ -45,7 +46,7 @@ Table table(Table tp, int level) {
 		new->all = tp->all;
 	return new;
 }
-// apply is function ?
+// apply is function, this funciton is for search, just iterator over every variable
 void foreach(Table tp, int lev, void (*apply)(Symbol, void *), void *cl) {
 	assert(tp);
 	//locate the proper scope
