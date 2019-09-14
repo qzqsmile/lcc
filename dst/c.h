@@ -12,6 +12,9 @@
 #define isqual(t)     ((t)->op >= CONST)
 #define unqual(t)     (isqual(t) ? (t)->type : (t))
 
+#define	MAXLINE  512
+#define	BUFSIZE 4096
+
 #undef roundup
 #define roundup(x,n) (((x)+((n)-1))&(~((n)-1)))
 #define NEW(p,a) ((p) = allocate(sizeof *(p), (a)))
@@ -21,6 +24,7 @@
 #define isfunc(t)     (unqual(t)->op == FUNCTION)
 #define isarray(t)    (unqual(t)->op == ARRAY)
 #define ones(n) ((n)>=8*sizeof (unsigned long) ? ~0UL : ~((~0UL)<<(n)))
+#define extend(x,ty) ((x)&(1<<(8*(ty)->size-1)) ? (x)|((~0UL)<<(8*(ty)->size-1)) : (x)&ones(8*(ty)->size))
 
 
 typedef struct list *List;
@@ -113,7 +117,7 @@ struct symbol {
 	// variables, functions, constants, structuture, union, enumeration
 	Type type;
 	//reference count, why float?
-	// float ref;
+	float ref;
 	//extra instructions
 	union {
 		struct {
@@ -204,6 +208,13 @@ extern Type voidtype;
 extern Type unsignedptr;
 extern Type signedptr;
 extern Type widechar;
+extern unsigned char *limit;
+extern char *line;
+extern int lineno;
+extern unsigned char *cp;
+extern char *token;
+extern Symbol tsym;
+extern int t;
 
 extern void error(const char *, ...);
 extern void deallocate(unsigned a);
@@ -228,6 +239,12 @@ extern Symbol install(const char *name, Table *tpp, int level, int arena);
 extern void rmtypes(int lev);
 extern void warning(const char *fmt, ...);
 extern int variadic(Type ty);
-
+extern void input_init(int argc, char *argv[]);
+extern void fillbuf(void);
+extern void nextline(void);
+extern Type array(Type ty, int n, int a); 
+extern int gettok(void); 
+extern void use(Symbol p, Coordinate src);
+extern Symbol lookup(const char *name, Table tp);
 
 #endif

@@ -283,3 +283,10 @@ char *vtoa(Type ty, Value v) {
 	assert(0); return NULL;
 }
 
+void use(Symbol p, Coordinate src) {
+	Coordinate *cp;
+
+	NEW(cp, PERM);
+	*cp = src;
+	// p->uses = append(cp, p->uses);
+}

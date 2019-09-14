@@ -285,6 +285,29 @@ Type func(Type ty, Type *proto, int style) {
 	return ty;
 }
 
+Type array(Type ty, int n, int a) {
+	assert(ty);
+	if (isfunc(ty)) {
+		error("illegal type `array of %t'\n", ty);
+		return array(inttype, n, 0);
+	}
+	if (isarray(ty) && ty->size == 0)
+		error("missing array size\n");
+	if (ty->size == 0) {
+		if (unqual(ty) == voidtype)
+			error("illegal type `array of %t'\n", ty);
+		else if (Aflag >= 2)
+			warning("declaring type array of %t' is undefined\n", ty);
+
+	} else if (n > INT_MAX/ty->size) {
+		error("size of `array of %t' exceeds %d bytes\n",
+			ty, INT_MAX);
+		n = 1;
+	}
+	return type(ARRAY, ty, n*ty->size,
+		a ? a : ty->align, NULL);
+}
+
 Type promote(Type ty) {
 	ty = unqual(ty);
 	switch (ty->op) {
