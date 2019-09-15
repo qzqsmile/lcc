@@ -5,11 +5,13 @@ int Aflag;		/* >= 0 if -A specified */
 Interface *IR = NULL;
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    int *p;
-    NEW(p, 0);
-    *p = 1;
-    printf("hello world! %s\n", stringd(10));
+    int s = 0;
+    input_init(argc, argv);
+    // type_init(argc, argv);
+    s = gettok();
+    printf("%d\n", s);
+    printf("%d\n", s);
     return 0;
 }

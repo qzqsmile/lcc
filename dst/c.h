@@ -246,5 +246,6 @@ extern Type array(Type ty, int n, int a);
 extern int gettok(void); 
 extern void use(Symbol p, Coordinate src);
 extern Symbol lookup(const char *name, Table tp);
+extern void type_init(int argc, char *argv[]);
 
 #endif
